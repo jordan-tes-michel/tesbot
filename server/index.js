@@ -11,6 +11,7 @@ let fs = require(`fs`);
 const Discord = require("discord.js");
 
 const discordToken = process.env.BOT_TOKEN;
+const discordChannelId = process.env.DISCORD_CHANNEL_ID;
 
 const initialVideosJson = {
   videos: []
@@ -34,7 +35,7 @@ client.on("messageCreate", async (message) => {
   console.log("message received");
   // console.log(message);
   // Vérifiez si le message provient d'un utilisateur et n'est pas un message du bot lui-même
-  if (!message.author.bot && message.channelId === "789223709483335710") {
+  if (!message.author.bot && message.channelId === discordChannelId) {
     console.log(JSON.stringify(message))
     console.log(
       `Message reçu de ${message.author.username}: ${message.content}`
