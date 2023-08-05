@@ -44,21 +44,9 @@ client.on("messageCreate", async (message) => {
       const attachment = message.attachments.first();
       const attachmentURL = attachment.url;
 
-      // Fetch the attachment and download it
-      const response = await require("axios").get(attachmentURL, {
-        responseType: "arraybuffer",
-      });
-      const buffer = Buffer.from(response.data, "binary");
-
-      // Save the file to disk
-      const fileName = attachment.name;
-      fs.writeFileSync(`client/public/videos/${fileName}`, buffer);
-
-      console.log(`Downloaded ${fileName}`);
-
       fs.readFile("./server/videos.json", (err, data) => {
         const videos = JSON.parse(data);
-        videos.videos.push(`videos/${fileName}`);
+        videos.videos.push(attachmentURL);
         fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
       });
     } else if (message.embeds.length > 0) {
