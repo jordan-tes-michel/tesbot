@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require("express");
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
 
@@ -8,6 +9,8 @@ const app = express();
 let fs = require(`fs`);
 
 const Discord = require("discord.js");
+
+const discordToken = process.env.BOT_TOKEN;
 
 const initialVideosJson = {
   videos: []
@@ -68,10 +71,7 @@ client.on("messageCreate", async (message) => {
   }
 });
 
-// Remplacez 'YOUR_BOT_TOKEN' par le token que vous avez obtenu sur le portail des développeurs Discord
-client.login(
-  "MTEzNzIyMDM1NjQyMDE0NTMzMw.G0CbXo.ht0pNJdoair-Ee96TACHxr9Ku9s1OI-B_kvTKY"
-);
+client.login(discordToken);
 
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 

@@ -1,10 +1,9 @@
-import './App.css';
 import {useState, useEffect} from "react";
 import ReactPlayer from "react-player";
 
 function App() {
 
-  const [video, setVideo] = useState(null);
+  const [video, setVideo] = useState("");
 
   useEffect(() => {
     const interval = setInterval(() => {
