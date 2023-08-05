@@ -17,8 +17,8 @@ function App() {
   }, [video]);
 
   const handleOnEnded = () => {
+    setVideo("");
     fetch("/delete-video").then(() => {
-      setVideo(null);
       console.log("video ended")
     })
   }
