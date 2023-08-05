@@ -14,7 +14,7 @@ function App() {
       }
     }, 200);
     return () => clearInterval(interval);
-  }, []);
+  }, [video]);
 
   const handleOnEnded = () => {
     fetch("/delete-video").then(() => {
