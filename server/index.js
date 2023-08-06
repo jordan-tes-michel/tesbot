@@ -73,7 +73,7 @@ app.get("/api", (req, res) => {
 app.get("/delete-video", (req, res) => {
   fs.readFile("./server/videos.json", (err, data) => {
     const videos = JSON.parse(data);
-    if (videos.videos.length) {
+    if (videos.videos.length > 0) {
       const filename = videos.videos[0];
       videos.videos.shift();
       if (filename.startsWith("videos/")) {
