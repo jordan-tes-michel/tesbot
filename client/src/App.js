@@ -7,19 +7,30 @@ function App() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      const queryParameters = new URLSearchParams(window.location.search);
+      const user = queryParameters.get("user");
       if (!video) {
-        fetch("/api")
+        fetch(`/api?user=${user}`)
           .then((res) => res.json())
-          .then((data) => setVideo(data.videos[0]));
+          .then((data) => {
+            setVideo(data.videos[0])
+          });
+      } else {
+        fetch(`/api?user=${user}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.skipped) {
+              fetch(`/skip-video?user=${user}&skipped=true`).then(res => setVideo(""))
+            }
+          });
       }
     }, 200);
     return () => clearInterval(interval);
   }, [video]);
 
-  const handleOnEnded = () => {
-    fetch("/delete-video").then(() => {
+  const handleOnEnded = videoUrl => {
+    fetch(`/delete-video?user=kurae&title=${videoUrl}`).then(res => {
       setVideo("");
-      console.log("video ended")
     })
   }
 
@@ -30,7 +41,7 @@ function App() {
           style={{ pointerEvents: "none" }}
           url={video}
           playing
-          onEnded={handleOnEnded}
+          onEnded={() => handleOnEnded(video)}
         />
       }
     </div>
