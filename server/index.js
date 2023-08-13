@@ -44,19 +44,19 @@ client.on("messageCreate", async (message) => {
       `Message reçu de ${message.author.username}: ${message.content}`
     );
 
-    if (message.attachments.size > 0) {
+    if (message.content.includes("https://youtube.com") || message.content.includes("https://youtu.be")) {
+      fs.readFile("./server/videos.json", (err, data) => {
+        const videos = JSON.parse(data);
+        videos.kurae.videos.push(message.content);
+        fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
+      });
+    } else if (message.attachments.size > 0) {
       const attachment = message.attachments.first();
       const attachmentURL = attachment.url;
 
       fs.readFile("./server/videos.json", (err, data) => {
         const videos = JSON.parse(data);
         videos.kurae.videos.push(attachmentURL);
-        fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
-      });
-    } else if (message.embeds.length > 0) {
-      fs.readFile("./server/videos.json", (err, data) => {
-        const videos = JSON.parse(data);
-        videos.kurae.videos.push(message.embeds[0].url);
         fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
       });
     }
