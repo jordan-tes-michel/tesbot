@@ -44,7 +44,7 @@ client.on("messageCreate", async (message) => {
       `Message reçu de ${message.author.username}: ${message.content}`
     );
 
-    if (message.content.includes("https://youtube.com") || message.content.includes("https://youtu.be")) {
+    if (message.content.includes("youtube.com") || message.content.includes("youtu.be")) {
       fs.readFile("./server/videos.json", (err, data) => {
         const videos = JSON.parse(data);
         videos.kurae.videos.push(message.content);
