@@ -16,6 +16,7 @@ const discordChannelId = process.env.DISCORD_CHANNEL_ID;
 const initialVideosJson = {
   kurae: {
     videos: [],
+    text:[],
     skipped: false
   }
 };
@@ -43,20 +44,24 @@ client.on("messageCreate", async (message) => {
     console.log(
       `Message reçu de ${message.author.username}: ${message.content}`
     );
-
     if (message.content.includes("youtube.com") || message.content.includes("youtu.be")) {
       fs.readFile("./server/videos.json", (err, data) => {
+        const videoLink = message.content.split(" ")[0];
         const videos = JSON.parse(data);
-        videos.kurae.videos.push(message.content);
+        videos.kurae.videos.push(videoLink);
+        const videoText = message.content.replace(videoLink, "").trim();
+        videos.kurae.text.push(videoText);
         fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
       });
     } else if (message.attachments.size > 0) {
       const attachment = message.attachments.first();
       const attachmentURL = attachment.url;
+      const videoText = message.content;
 
       fs.readFile("./server/videos.json", (err, data) => {
         const videos = JSON.parse(data);
         videos.kurae.videos.push(attachmentURL);
+        videos.kurae.text.push(videoText);
         fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
       });
     }
@@ -86,6 +91,7 @@ app.get("/delete-video", (req, res) => {
       const videos = JSON.parse(data);
       if (videos[user] && videos[user].videos.length > 0 && videos[user].videos[0] === videoUrl) {
         videos[user].videos.shift();
+        videos[user].text.shift();
         fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
       }
     })
@@ -102,6 +108,7 @@ app.get("/skip-video", (req, res) => {
         if (!req.query.skipped) {
           if (videos[user].videos.length > 0) {
             videos[user].videos.shift();
+            videos[user].text.shift();
             videos[user].skipped = true;
             console.log(videos);
             fs.writeFileSync("./server/videos.json", JSON.stringify(videos));

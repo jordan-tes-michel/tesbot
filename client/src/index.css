@@ -11,3 +11,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+p {
+  width: 100%;
+  position: relative;
+  bottom: 100px;
+  font-family: Impact, sans-serif;
+  font-size: 4rem;
+  color: white;
+  -webkit-text-stroke: 2px black;
+  text-align: center;
+}
