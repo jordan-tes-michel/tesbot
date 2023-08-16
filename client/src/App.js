@@ -30,29 +30,51 @@ function App() {
           });
       }
     }, 200);
+    if (isUrlImage(video)) {
+      console.log("image")
+      setTimeout(() => {
+        console.log("entered timeout")
+        const queryParameters = new URLSearchParams(window.location.search);
+        const user = queryParameters.get("user");
+        fetch(`delete-video?user=${user}&title=${video}`).then(res => {
+          setVideo("");
+          setText("");
+        })
+      }, 5000);
+    }
     return () => clearInterval(interval);
   }, [video]);
 
   const handleOnEnded = videoUrl => {
-    fetch(`/delete-video?user=kurae&title=${videoUrl}`).then(res => {
+    const queryParameters = new URLSearchParams(window.location.search);
+    const user = queryParameters.get("user");
+    fetch(`/delete-video?user=${user}&title=${videoUrl}`).then(res => {
       setVideo("");
       setText("");
     })
   }
 
+  const isUrlImage = (videoUrl) => {
+    const imageUrlRegex = /\.(jpeg|jpg|gif|png)$/i;
+    return imageUrlRegex.test(videoUrl);
+  }
+
   return (
     <div className="App">
-      {!!video && video.length > 0
-        && <div style={{ position: "relative", width: "fit-content" }}>
-          <ReactPlayer
+      <div style={{ position: "relative", width: "fit-content" }}>
+        {!!video && video.length > 0 && !isUrlImage(video)
+          && <ReactPlayer
             style={{ pointerEvents: "none" }}
             url={video}
             playing
             onEnded={() => handleOnEnded(video)}
           />
-          {!!text && <p>{text}</p>}
-        </div>
-      }
+        }
+        {!!video && video.length > 0 && isUrlImage(video)
+          && <img style={{ maxHeight: "80vh"}} src={video.split(" ")[0]} alt="" />
+        }
+        {!!text && <p>{text}</p>}
+      </div>
     </div>
   );
 }

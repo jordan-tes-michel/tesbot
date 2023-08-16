@@ -11,15 +11,19 @@ let fs = require(`fs`);
 const Discord = require("discord.js");
 
 const discordToken = process.env.BOT_TOKEN;
-const discordChannelId = process.env.DISCORD_CHANNEL_ID;
+const users = process.env.USERS_NAME.split(",")
+const discordChannelIds = process.env.USERS_CHANNEL_ID.split(",");
 
-const initialVideosJson = {
-  kurae: {
+const initialVideosJson = {}
+
+users.map((user, i) => {
+  initialVideosJson[user] = {
+    channelId: discordChannelIds[i],
     videos: [],
-    text:[],
+    text: [],
     skipped: false
   }
-};
+})
 
 fs.writeFileSync("./server/videos.json", JSON.stringify(initialVideosJson));
 
@@ -39,18 +43,22 @@ client.on("messageCreate", async (message) => {
   console.log("message received");
   // console.log(message);
   // Vérifiez si le message provient d'un utilisateur et n'est pas un message du bot lui-même
-  if (!message.author.bot && message.channelId === discordChannelId) {
+  if (!message.author.bot && discordChannelIds.includes(message.channelId)) {
     console.log(JSON.stringify(message))
-    console.log(
-      `Message reçu de ${message.author.username}: ${message.content}`
-    );
-    if (message.content.includes("youtube.com") || message.content.includes("youtu.be")) {
+    const imageUrlRegex = /\.(jpeg|jpg|gif|png)$/i;
+    const imageTest = imageUrlRegex.test(message.content.split(" ")[0]);
+    if (message.content.includes("youtube.com") || message.content.includes("youtu.be") ||imageTest) {
       fs.readFile("./server/videos.json", (err, data) => {
         const videoLink = message.content.split(" ")[0];
-        const videos = JSON.parse(data);
-        videos.kurae.videos.push(videoLink);
         const videoText = message.content.replace(videoLink, "").trim();
-        videos.kurae.text.push(videoText);
+        const videos = JSON.parse(data);
+
+        for (const user in videos) {
+          if (videos[user].channelId === message.channelId) {
+            videos[user].videos.push(videoLink)
+            videos[user].text.push(videoText);
+          }
+        }
         fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
       });
     } else if (message.attachments.size > 0) {
@@ -60,8 +68,12 @@ client.on("messageCreate", async (message) => {
 
       fs.readFile("./server/videos.json", (err, data) => {
         const videos = JSON.parse(data);
-        videos.kurae.videos.push(attachmentURL);
-        videos.kurae.text.push(videoText);
+        for (const user in videos) {
+          if (videos[user].channelId === message.channelId) {
+            videos[user].videos.push(attachmentURL)
+            videos[user].text.push(videoText);
+          }
+        }
         fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
       });
     }
