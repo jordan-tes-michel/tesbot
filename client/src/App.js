@@ -36,11 +36,11 @@ function App() {
         console.log("entered timeout")
         const queryParameters = new URLSearchParams(window.location.search);
         const user = queryParameters.get("user");
-        fetch(`delete-video?user=${user}&title=${video}`).then(res => {
+        fetch(`delete-video?user=${user}`).then(res => {
           setVideo("");
           setText("");
         })
-      }, 5000);
+      }, 15000);
     }
     return () => clearInterval(interval);
   }, [video]);
@@ -48,7 +48,7 @@ function App() {
   const handleOnEnded = videoUrl => {
     const queryParameters = new URLSearchParams(window.location.search);
     const user = queryParameters.get("user");
-    fetch(`/delete-video?user=${user}&title=${videoUrl}`).then(res => {
+    fetch(`/delete-video?user=${user}`).then(res => {
       setVideo("");
       setText("");
     })
@@ -61,20 +61,25 @@ function App() {
 
   return (
     <div className="App">
-      <div style={{ position: "relative", width: "fit-content" }}>
-        {!!video && video.length > 0 && !isUrlImage(video)
-          && <ReactPlayer
-            style={{ pointerEvents: "none" }}
-            url={video}
-            playing
-            onEnded={() => handleOnEnded(video)}
-          />
-        }
-        {!!video && video.length > 0 && isUrlImage(video)
-          && <img style={{ maxHeight: "80vh"}} src={video.split(" ")[0]} alt="" />
-        }
+      <div className={`container ${!!video ? "appear" : ""}`}>
+        <div className="video">
+          {!!video && !isUrlImage(video)
+            && <ReactPlayer
+              style={{ pointerEvents: "none"}}
+              url={video}
+              playing
+              onEnded={() => handleOnEnded(video)}
+            />
+          }
+          {!!video && isUrlImage(video)
+            && <img style={{ minHeight: "60vh", maxHeight: "80vh"}} src={video.split(" ")[0]} alt="" />
+          }
+        </div>
         {!!text && <p>{text}</p>}
       </div>
+      {!!video && <audio autoPlay>
+        <source src="notification.wav" type="audio/wav"/>
+      </audio>}
     </div>
   );
 }

@@ -39,6 +39,20 @@ client.once("ready", () => {
   console.log(`Connecté en tant que ${client.user.tag}!`);
 });
 
+const addUrl = (message, url, text) => {
+  fs.readFile("./server/videos.json", (err, data) => {
+    const videos = JSON.parse(data);
+
+    for (const user in videos) {
+      if (videos[user].channelId === message.channelId) {
+        videos[user].videos.push(url)
+        videos[user].text.push(text);
+      }
+    }
+    fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
+  });
+}
+
 client.on("messageCreate", async (message) => {
   console.log("message received");
   // console.log(message);
@@ -48,34 +62,14 @@ client.on("messageCreate", async (message) => {
     const imageUrlRegex = /\.(jpeg|jpg|gif|png)$/i;
     const imageTest = imageUrlRegex.test(message.content.split(" ")[0]);
     if (message.content.includes("youtube.com") || message.content.includes("youtu.be") ||imageTest) {
-      fs.readFile("./server/videos.json", (err, data) => {
-        const videoLink = message.content.split(" ")[0];
-        const videoText = message.content.replace(videoLink, "").trim();
-        const videos = JSON.parse(data);
-
-        for (const user in videos) {
-          if (videos[user].channelId === message.channelId) {
-            videos[user].videos.push(videoLink)
-            videos[user].text.push(videoText);
-          }
-        }
-        fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
-      });
+      const videoLink = message.content.split(" ")[0];
+      const videoText = message.content.replace(videoLink, "").trim();
+      addUrl(message, videoLink, videoText);
     } else if (message.attachments.size > 0) {
       const attachment = message.attachments.first();
       const attachmentURL = attachment.url;
       const videoText = message.content;
-
-      fs.readFile("./server/videos.json", (err, data) => {
-        const videos = JSON.parse(data);
-        for (const user in videos) {
-          if (videos[user].channelId === message.channelId) {
-            videos[user].videos.push(attachmentURL)
-            videos[user].text.push(videoText);
-          }
-        }
-        fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
-      });
+      addUrl(message, attachmentURL, videoText);
     }
   }
 });
@@ -98,10 +92,9 @@ app.get("/api", (req, res) => {
 app.get("/delete-video", (req, res) => {
   user = req.query.user;
   if (user) {
-    const videoUrl = req.query.title;
     fs.readFile("./server/videos.json", (err, data) => {
       const videos = JSON.parse(data);
-      if (videos[user] && videos[user].videos.length > 0 && videos[user].videos[0] === videoUrl) {
+      if (videos[user] && videos[user].videos.length > 0) {
         videos[user].videos.shift();
         videos[user].text.shift();
         fs.writeFileSync("./server/videos.json", JSON.stringify(videos));
